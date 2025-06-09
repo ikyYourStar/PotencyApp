@@ -1,411 +1,490 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Video</title>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aplikasi Konten</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      margin: 0;
+      background-image: url('https://graph.org/file/179471b993991660e2df4-33845de09e440f0141.jpg');
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      color: #333;
+    }
 
-        body {
-            font-family: sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            margin: 0;
-            min-height: 100vh;
-            background-image: url('https://raw.githubusercontent.com/ikyYourStar/ksr-api/refs/heads/main/ksr-image/images%20(16).jpeg');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            color: white;
-            text-shadow: 0 0 5px black;
-            position: relative; /* Agar tombol seru bisa di-posisikan absolute */
-        }
+    /* Gaya untuk logo */
+    .logo-container {
+      text-align: center; /* Pusatkan logo */
+      margin-bottom: 20px; /* Beri jarak di bawah logo */
+    }
 
-        .button, .nav-button, a {
-            margin: 10px 0;
-            padding: 12px 20px;
-            font-size: 1rem;
-            cursor: pointer;
-            background-color: rgba(0, 0, 0, 0.5);
-            border: none;
-            color: white;
-            border-radius: 10px;
-            text-align: center;
-            width: 100%;
-            max-width: 300px;
-        }
+    .logo-container img {
+      max-width: 250px; /* Lebar maksimum logo */
+      height: auto; /* Jaga rasio aspek */
+      display: block; /* Agar margin auto bekerja */
+      margin: 0 auto; /* Tengah logo */
+    }
 
-        .menu, .link-list, #adminPopup {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            background-color: rgba(0, 0, 0, 0.6);
-            padding: 20px;
-            border-radius: 10px;
-            width: 100%;
-            max-width: 600px;
-        }
+    #pencarianPage, #detailPage, #resolutionOptions {
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      margin: 20px auto;
+      max-width: 800px;
+    }
 
-        .active {
-            display: flex !important;
-        }
+    input, button, textarea {
+      width: 100%;
+      max-width: 400px;
+      display: block;
+      margin: 0 auto 10px auto;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    button:hover { background-color: #0056b3; }
+    h2, h3 { text-align: center; color: #0056b3; }
 
-        .pagination {
-            margin-top: 15px;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
+    /* Gaya untuk halaman pencarian */
+    #pencarianPage { display: block; }
+    .hasil-container { margin-top: 20px; }
+    .item-card {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      background-color: #fff;
+    }
+    .item-card:hover {
+      background-color: #f0f0f0;
+    }
+    .item-card img {
+      width: 100px;
+      height: 75px;
+      object-fit: cover;
+      margin-right: 15px;
+      border-radius: 3px;
+    }
+    .item-card-info {
+      flex-grow: 1;
+    }
+    .item-card-title {
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 5px;
+    }
+    .item-card-genre {
+      font-size: 0.9em;
+      color: #666;
+    }
 
-        a {
-            text-decoration: none;
-            background-color: rgba(255, 255, 255, 0.1);
-            transition: background 0.3s;
-        }
+    /* Gaya untuk halaman detail */
+    #detailPage { display: none; }
+    .thumbnail-img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      margin: 0 auto 20px auto;
+      border-radius: 5px;
+    }
+    .section-title {
+      font-size: 1.2em;
+      font-weight: bold;
+      margin-top: 25px;
+      margin-bottom: 10px;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 5px;
+      color: #007bff;
+    }
+    .description {
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .download-options button, .action-button {
+      padding: 10px 15px;
+      font-size: 16px;
+      margin-right: 10px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      background-color: #007bff;
+      color: white;
+      transition: background-color 0.2s ease;
+    }
+    .download-options button:hover, .action-button:hover {
+      background-color: #0056b3;
+    }
+    .back-button {
+      margin-bottom: 20px;
+      background-color: #6c757d;
+    }
+    .back-button:hover {
+      background-color: #5a6268;
+    }
 
-        a:hover {
-            background-color: rgba(255, 255, 255, 0.25);
-        }
+    /* Gaya untuk overlay resolusi */
+    #resolutionOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
 
-        #linkList {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 10px;
-            width: 100%;
-            margin-top: 15px;
-        }
+    #resolutionOptions {
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 20px;
+      border-radius: 5px;
+      text-align: center;
+      min-width: 250px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
 
-        /* Style untuk popup admin */
-        #adminPopup {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 1000;
-        }
+    #resolutionOptions h4 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      color: #333;
+    }
 
-        #adminPopup input[type="password"] {
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            color: black;
-        }
+    #resolutionOptions button {
+      display: block;
+      margin: 0 auto 10px auto;
+      padding: 10px 15px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      background-color: #007bff;
+      color: white;
+      width: 80%;
+      box-sizing: border-box;
+      transition: background-color 0.2s ease;
+    }
 
-        #adminPopup button {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            background-color: #5cb85c;
-            color: white;
-            cursor: pointer;
-            font-size: 1rem;
-        }
+    #resolutionOptions button:hover {
+      background-color: #0056b3;
+    }
+    #resolutionOptions .close-button {
+      background-color: #dc3545;
+      margin-top: 20px;
+    }
+    #resolutionOptions .close-button:hover {
+      background-color: #c82333;
+    }
 
-        #adminPopup button:hover {
-            background-color: #4cae4c;
-        }
-
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 50%;
-            height: 50%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            display: none;
-        }
-
-        @media (min-width: 768px) {
-            .button, .nav-button, a {
-                font-size: 1.1rem;
-                padding: 14px 24px;
-            }
-
-            .menu, .link-list, #adminPopup {
-                max-width: 700px;
-            }
-        }
-
-        /* Style untuk tombol seru di pojok kanan atas */
-        .tombol-seru {
-            position: absolute;
-            top: -5px;
-            right: 29px;
-            padding: 1px 15px;
-            font-size: 1.5rem;
-            background-color: rgba(0, 0, 0, 0.8); /* Warna merah transparan */
-            color: white;
-            border: none;
-            border-radius: 80px;
-            cursor: pointer;
-            z-index: 1001; /* Pastikan di atas elemen lain */
-            text-decoration: none; /* Jika Anda ingin menggunakannya sebagai link */
-        }
-
-        .tombol-seru:hover {
-            background-color: rgba(0, 0, 0, 0.8);
-        }
-    </style>
+    /* Media query untuk tampilan layar lebar (desktop) */
+    @media (min-width: 768px) {
+      #pencarianPage, #detailPage {
+        padding: 30px;
+        margin-top: 50px;
+        margin-bottom: 50px;
+      }
+      input, button, textarea {
+        max-width: 600px;
+      }
+    }
+  </style>
 </head>
 <body>
 
-    <a href="#" class="tombol-seru" id="infoBtn">Admin Only</a>
+  <div class="logo-container">
+    <img src="https://ibb.co/G37HSRWc" alt="Logo Minzedx">
+  </div>
 
-    <div class="menu active" id="mainMenu">
-        <div id="nameList"></div>
-        <div class="pagination">
-            <button class="nav-button" id="mainPrev">Prev</button>
-            <span id="mainPageInfo"></span>
-            <button class="nav-button" id="mainNext">Next</button>
-        </div>
+  <div id="pencarianPage">
+    <h2>Cari Konten</h2>
+    <input type="text" id="kataKunci" placeholder="Cari judul atau genre...">
+    <button onclick="cari()">Cari</button>
+
+    <div class="hasil-container" id="hasilPencarian"></div>
+  </div>
+
+  <div id="detailPage">
+    <button class="back-button" onclick="showPencarianPage()">Kembali ke Pencarian</button>
+    <h1 id="detailJudul"></h1>
+    <img id="detailThumbnail" class="thumbnail-img" src="" alt="Thumbnail Konten">
+   
+    <div class="section-title">Deskripsi Cerita</div>
+    <p id="detailDeskripsi" class="description"></p>
+
+    <div class="section-title">Link Episode</div>
+    <div id="downloadButtons" class="download-options">
+      </div>
+
+    <div class="section-title">Link Foto Asli</div>
+    <button id="linkFotoAsliButton" class="action-button">Lihat Foto Asli</button>
+  </div>
+
+  <div id="resolutionOverlay">
+    <div id="resolutionOptions">
+      <h4>Pilih Resolusi</h4>
+      <button class="close-button" onclick="hideResolutionOverlay()">Tutup</button>
     </div>
+  </div>
 
-    <div class="link-list" id="linkMenu">
-        <button class="nav-button" id="backBtn">← Kembali</button>
-        <div id="linkList"></div>
-        <div class="pagination">
-            <button class="nav-button" id="linkPrev">Prev</button>
-            <span id="linkPageInfo"></span>
-            <button class="nav-button" id="linkNext">Next</button>
-        </div>
-    </div>
+  <script>
+    // Referensi ke halaman-halaman dan overlay
+    const pencarianPage = document.getElementById('pencarianPage');
+    const detailPage = document.getElementById('detailPage');
+    const resolutionOverlay = document.getElementById('resolutionOverlay');
+    const resolutionOptionsDiv = document.getElementById('resolutionOptions');
 
-    <div id="adminPopup" style="display: none;">
-        <h3>Only Admin</h3>
-        <input type="password" id="adminPassword" placeholder="Masukkan Password">
-        <button id="submitPassword">Masuk</button>
-        <button id="cancelPassword">Batal</button>
-        <div id="passwordError" style="color: red; margin-top: 5px;"></div>
-        <div id="adminLinks" style="display: none; flex-direction: column; align-items: center; margin-top: 20px;">
-            <h3>Admin Links</h3>
-            <a href="#" target="_blank" class="button admin-link">Link 1</a>
-            <a href="#" target="_blank" class="button admin-link">Link 2</a>
-            <a href="#" target="_blank" class="button admin-link">Link 3</a>
-            <a href="#" target="_blank" class="button admin-link">Link 4</a>
-            <a href="#" target="_blank" class="button admin-link">Link 5</a>
-            <a href="#" target="_blank" class="button admin-link">Link 6</a>
-            <a href="#" target="_blank" class="button admin-link">Link 7</a>
-            <a href="#" target="_blank" class="button admin-link">Link 8</a>
-        </div>
-    </div>
-
-    <div id="overlay" class="overlay"></div>
-
-    <script>
-        const data = {
-            "Faith achie": [
-                "https://videy.co/v/?id=igEQrEuM1",
-                "https://videy.co/v/?id=CEVPBOiV1",
-                "https://videy.co/v/?id=AQV70DT21",
-                "https://videy.co/v/?id=PQ5tPJi41",
-                "https://videy.co/v/?id=8Is2uAka1",
-                "https://videy.co/v/?id=Fj3bdA0j1",
-                "https://videy.co/v/?id=xGzGsrEk1"
-            ],
-            "cindo ocil": ["https://videy.co/v/?id=EwXhWnZN"],
-            "ipar adalah maut": ["https://videy.co/v/?id=VKKQPiVl1"],
-            "sd di semak": ["https://videy.co/v/?id=Vu82oxsB1"],
-            "nyasar ke oyo": ["https://videy.co/v?id=2vQASNGp1"],
-            "nyuruh di atas": ["https://videy.co/v?id=X7EOUYNi1"],
-            "pamer susu": ["https://videy.co/v?id=ErkGVqHm1"],
-            "ngajarin adik": ["https://videy.co/v?id=7c60HuIy1"],
-            "abang nakal": ["https://videy.co/v?id=d7SUr9L51"],
-            "tiktoker nunjukin memek": ["https://videy.co/v?id=xet9czft1"],
-            "smp di paksa": ["https://videy.co/v?id=QmE6czvC1"],
-            "kaca mata gesek gesek": ["https://videy.co/v?id=ivDp1anI1"],
-            "cina minta puasin": ["https://videy.co/v?id=HM1uePkz1"],
-            "guru dan murid": ["https://videy.co/v?id=Lhe8ag7W1"],
-            "di pakai preman": ["https://videy.co/v?id=Kb2hTlaK1"],
-            "bocil sunda smp": ["https://videy.co/v?id=9TJnTw0m1"],
-            "ajak ayang gaya baru": ["https://videy.co/v?id=jV6Th6lI1"],
-            "main sama adik ipar": ["https://videy.co/v?id=45iAr0aE1"],
-            "cosplay sambil goyang": ["https://videy.co/v?id=ZaDlM9LY1"],
-            "Dea Smp": ["https://videy.co/v?id=rUXhVLzK1",
-                "https://videy.co/v?id=aVuDO4ed1",
-                "https://videy.co/v?id=9eCkNQQZ1",
-                "https://videy.co/v?id=ZKFHWKrd1",
-                "https://videy.co/v?id=ayBVlnwH1",
-                "https://videy.co/v?id=wcLBLppg1",
-                "https://videy.co/v?id=icV9SmrP1",
-                "https://videy.co/v?id=b3hkSP4c1"]
-        };
-
-        const namesPerPage = 10;
-        const linksPerPage = 10;
-
-        const mainMenu = document.getElementById('mainMenu');
-        const nameList = document.getElementById('nameList');
-        const mainPrev = document.getElementById('mainPrev');
-        const mainNext = document.getElementById('mainNext');
-        const mainPageInfo = document.getElementById('mainPageInfo');
-
-        const linkMenu = document.getElementById('linkMenu');
-        const linkList = document.getElementById('linkList');
-        const linkPrev = document.getElementById('linkPrev');
-        const linkNext = document.getElementById('linkNext');
-        const linkPageInfo = document.getElementById('linkPageInfo');
-        const backBtn = document.getElementById('backBtn');
-
-        let allNames = Object.keys(data);
-        let currentNamePage = 1;
-        let currentLinkPage = 1;
-        let currentLinks = [];
-        let currentName = "";
-
-        function renderMainMenu() {
-            nameList.innerHTML = '';
-            const totalPages = Math.ceil(allNames.length / namesPerPage);
-            const start = (currentNamePage - 1) * namesPerPage;
-            const end = start + namesPerPage;
-
-            allNames.slice(start, end).forEach(name => {
-                const btn = document.createElement('button');
-                btn.className = 'button';
-                btn.textContent = name;
-
-                if (data[name].length === 1) {
-                    btn.onclick = () => window.open(data[name][0], '_blank');
-                } else {
-                    btn.onclick = () => {
-                        currentLinks = data[name];
-                        currentLinkPage = 1;
-                        currentName = name;
-                        showLinkMenu();
-                    };
-                }
-
-                nameList.appendChild(btn);
-            });
-
-            mainPageInfo.textContent = `Halaman ${currentNamePage} dari ${totalPages}`;
-            mainPrev.disabled = currentNamePage === 1;
-            mainNext.disabled = currentNamePage === totalPages;
+    // Data konten Anda. Anda akan mengedit ini langsung di sini.
+    // Tambahkan item baru di BAGIAN AKHIR array ini untuk agar muncul paling atas
+    let data = [ 
+      { 
+        id: 'Shigokare:_Ecchi_na_Joshi_Daisei_to_Doki_x2_Love_Lesson!!_The_Animation_1', 
+        judul: "Shigokare: Ecchi na Joshi Daisei to Doki x2 Love Lesson!! The Animation", 
+        genre: "romance, shigokare, ecchi, joshi, daisei", 
+        thumbnail: "https://graph.org/file/b7b6368ed09d184640213f-cd8de062287e1eace1.jpg", 
+        deskripsi: "Menceritakan tentang seorang laki laki bernama akira yang baru sembuh dari penyakit yang di derita nya dan akira di latih untuk pulih oleh tiga orang perempuan senior dan sejak saat itu hubungan mereka mendekat.",
+        detailLink: "https://graph.org/file/b7b6368ed09d184640213f-cd8de062287e1eace1.jpg", 
+        downloadOptions: {
+          'Episode 1': {
+            '360p': 'https://example.com/download/shigokare_ep1_360p.mp4',
+            '480p': 'https://example.com/download/shigokare_ep1_480p.mp4',
+            '720p': 'https://example.com/download/shigokare_ep1_720p.mp4'
+          }
         }
-
-        mainPrev.onclick = () => {
-            if (currentNamePage > 1) {
-                currentNamePage--;
-                renderMainMenu();
-            }
-        };
-
-        mainNext.onclick = () => {
-            const totalPages = Math.ceil(allNames.length / namesPerPage);
-            if (currentNamePage < totalPages) {
-                currentNamePage++;
-                renderMainMenu();
-            }
-        };
-
-        function showLinkMenu() {
-            mainMenu.classList.remove('active');
-            linkMenu.classList.add('active');
-            renderLinkMenu();
+      },
+      { 
+        id: 'Iribitari_Gal_ni_Manko_Tsukawasete_Morau_Hanashi_1',
+        judul: "Iribitari Gal ni Manko Tsukawasete Morau Hanashi Episode", 
+        genre: "iribitari, gal, manko, tsukawasete, hanashi, morau", 
+        thumbnail: "https://graph.org/file/d0e6257aa35cbc77ff2eb-4c9e8e38455ea25be6.jpg", 
+        deskripsi: "Menceritakan seorang mc yang dia adalah wibu dan perempuan bernama kuroda dia selalu datang ke rumah mc untuk baca manga selain itu juga kuroda memperbolehkan mc untuk menggunakan mobil nya sebagai terima kasih.",
+        detailLink: "https://graph.org/file/d0e6257aa35cbc77ff2eb-4c9e8e38455ea25be6.jpg", 
+        downloadOptions: {
+          'Episode 1': {
+            '360p': 'https://example.com/download/iribitari_ep1_360p.mp4',
+            '480p': 'https://example.com/download/iribitari_ep1_480p.mp4',
+            '720p': 'https://example.com/download/iribitari_ep1_720p.mp4'
+          },
+          'Episode 2': {
+            '360p': 'https://example.com/download/iribitari_ep2_360p.mp4',
+            '480p': 'https://example.com/download/iribitari_ep2_480p.mp4',
+            '720p': 'https://example.com/download/iribitari_ep2_720p.mp4'
+          }
         }
-
-        function renderLinkMenu() {
-            linkList.innerHTML = '';
-            const totalPages = Math.ceil(currentLinks.length / linksPerPage);
-            const start = (currentLinkPage - 1) * linksPerPage;
-            const end = start + linksPerPage;
-
-            currentLinks.slice(start, end).forEach((link, index) => {
-                const a = document.createElement('a');
-                const num = start + index + 1;
-                a.textContent = `${currentName} ${num}`;
-                a.href = link;
-                a.target = "_blank";
-                linkList.appendChild(a);
-            });
-
-            linkPageInfo.textContent = `Halaman ${currentLinkPage} dari ${totalPages}`;
-            linkPrev.disabled = currentLinkPage === 1;
-            linkNext.disabled = currentLinkPage === totalPages;
+      },
+      { 
+        id: 'magic_romance_1',
+        judul: "Magic de Romance", 
+        genre: "magic, romance", 
+        thumbnail: "https://via.placeholder.com/100x75/FF0000/FFFFFF?text=Magic", 
+        deskripsi: "Kisah cinta terlarang antara penyihir dari dua klan yang bertikai. Bisakah cinta mereka bertahan di tengah konflik sihir dan tradisi kuno?",
+        detailLink: "https://via.placeholder.com/600x400/FF0000/FFFFFF?text=Magic+Detail", 
+        downloadOptions: {} // Contoh tanpa opsi download
+      },
+      {
+        id: 'nezuko_monster_1',
+        judul: "[UNCENSORED] Nezuko Memburu Monster Dimalam Hari",
+        genre: "monster slayer, anime",
+        thumbnail: "https://i.ibb.co/L5Qz87p/Screenshot-20250607-155719.png", 
+        deskripsi: "Nezuko, dalam wujud iblisnya, harus memburu monster yang bersembunyi di kegelapan malam untuk melindungi saudaranya dan menyelamatkan manusia. Aksi penuh ketegangan dan perjuangan.",
+        detailLink: "https://i.ibb.co/L5Qz87p/Screenshot-20250607-155719.png",
+        downloadOptions: {
+          'Episode 1': {
+            '360p': 'https://example.com/download/nezuko_ep1_360p.mp4',
+            '480p': 'https://example.com/download/nezuko_ep1_480p.mp4',
+            '720p': 'https://example.com/download/nezuko_ep1_720p.mp4'
+          }
         }
+      },
+      // Item baru yang Anda tambahkan, letakkan di akhir array data ini
+      {
+        id: 'new_content_id_1',
+        judul: "Judul Baru Ini Ada di Paling Atas!",
+        genre: "baru,fantasi,aksi",
+        thumbnail: "https://via.placeholder.com/100x75/00FF00/FFFFFF?text=New",
+        deskripsi: "Ini adalah deskripsi untuk konten yang baru ditambahkan.",
+        detailLink: "https://via.placeholder.com/600x400/00FF00/FFFFFF?text=New+Content+Detail",
+        downloadOptions: {
+          'Chapter 1': {
+            'standard': 'https://example.com/download/new_chap1_standard.pdf'
+          }
+        }
+      }
+    ];
 
-        linkPrev.onclick = () => {
-            if (currentLinkPage > 1) {
-                currentLinkPage--;
-                renderLinkMenu();
-            }
-        };
+    // --- Manajemen Tampilan Halaman & State ---
+    function showPencarianPage() {
+      pencarianPage.style.display = 'block';
+      detailPage.style.display = 'none';
+      resolutionOverlay.style.display = 'none';
+      document.getElementById('kataKunci').value = ''; 
+      cari(); 
+      window.location.hash = '';
+      localStorage.removeItem('lastViewedItemId');
+    }
 
-        linkNext.onclick = () => {
-            const totalPages = Math.ceil(currentLinks.length / linksPerPage);
-            if (currentLinkPage < totalPages) {
-                currentLinkPage++;
-                renderLinkMenu();
-            }
-        };
+    function showDetailPage(itemId) {
+      if (!itemId) {
+        showPencarianPage();
+        return;
+      }
+      pencarianPage.style.display = 'none';
+      detailPage.style.display = 'block';
+      loadDetail(itemId);
+      window.location.hash = itemId;
+      localStorage.setItem('lastViewedItemId', itemId);
+    }
 
-        backBtn.onclick = () => {
-            linkMenu.classList.remove('active');
-            mainMenu.classList.add('active');
-        };
+    // --- Fungsi Halaman Pencarian ---
+    function cari() {
+      const input = document.getElementById("kataKunci").value.toLowerCase().trim();
+      const hasilDiv = document.getElementById("hasilPencarian");
+      hasilDiv.innerHTML = "";
 
-        renderMainMenu();
+      // Dapatkan salinan array data, lalu balik urutannya
+      const dataUntukTampil = [...data].reverse(); 
 
-        // Script untuk fitur Only Admin
-        const infoBtn = document.getElementById('infoBtn');
-        const adminPopup = document.getElementById('adminPopup');
-        const overlay = document.getElementById('overlay');
-        const adminPasswordInput = document.getElementById('adminPassword');
-        const submitPasswordBtn = document.getElementById('submitPassword');
-        const cancelPasswordBtn = document.getElementById('cancelPassword');
-        const passwordError = document.getElementById('passwordError');
-        const adminLinksDiv = document.getElementById('adminLinks');
-        const adminLinksElements = document.querySelectorAll('#adminLinks a');
+      const hasilFilter = dataUntukTampil.filter(item => 
+        item.judul.toLowerCase().includes(input) || 
+        item.genre.toLowerCase().includes(input)
+      );
 
-        infoBtn.onclick = () => {
-            overlay.style.display = 'block';
-            adminPopup.style.display = 'flex';
-            passwordError.textContent = '';
-            adminPasswordInput.value = '';
-            adminLinksDiv.style.display = 'none';
-        };
+      if (hasilFilter.length === 0) {
+        hasilDiv.innerHTML = "<p>Tidak ada hasil.</p>";
+      } else {
+        hasilFilter.forEach(item => {
+          const itemCard = document.createElement("div");
+          itemCard.className = "item-card";
+          itemCard.onclick = () => showDetailPage(item.id);
 
-        cancelPasswordBtn.onclick = () => {
-            overlay.style.display = 'none';
-            adminPopup.style.display = 'none';
-        };
+          const img = document.createElement("img");
+          img.src = item.thumbnail;
+          img.alt = item.judul; 
 
-        submitPasswordBtn.onclick = () => {
-            const password = adminPasswordInput.value;
-            if (password === 'Aku cinta19') {
-                passwordError.textContent = '';
-                adminLinksDiv.style.display = 'flex';
-                // Isi link admin di sini
-                const adminLinkUrls = [
-                    '#link1',
-                    '#link2',
-                    '#link3',
-                    '#link4',
-                    '#link5'
-                ];
-                adminLinksElements.forEach((link, index) => {
-                    link.href = adminLinkUrls[index];
-                });
+          const infoDiv = document.createElement("div");
+          infoDiv.className = "item-card-info";
+
+          const titleDiv = document.createElement("div");
+          titleDiv.className = "item-card-title";
+          titleDiv.textContent = item.judul;
+
+          const genreDiv = document.createElement("div");
+          genreDiv.className = "item-card-genre";
+          genreDiv.textContent = "Genre: " + item.genre;
+
+          infoDiv.appendChild(titleDiv);
+          infoDiv.appendChild(genreDiv);
+
+          itemCard.appendChild(img);
+          itemCard.appendChild(infoDiv);
+          hasilDiv.appendChild(itemCard);
+        });
+      }
+    }
+
+    // --- Fungsi Halaman Detail ---
+    function loadDetail(itemId) {
+      const selectedItem = data.find(item => item.id === itemId);
+
+      if (selectedItem) {
+        document.getElementById('detailJudul').textContent = selectedItem.judul;
+        document.getElementById('detailThumbnail').src = selectedItem.thumbnail;
+        document.getElementById('detailThumbnail').alt = selectedItem.judul;
+        document.getElementById('detailDeskripsi').textContent = selectedItem.deskripsi;
+
+        const downloadButtonsDiv = document.getElementById('downloadButtons');
+        downloadButtonsDiv.innerHTML = "";
+        
+        if (selectedItem.downloadOptions && Object.keys(selectedItem.downloadOptions).length > 0) {
+          for (const episode in selectedItem.downloadOptions) {
+            if (typeof selectedItem.downloadOptions[episode] === 'object' && selectedItem.downloadOptions[episode] !== null) {
+              const button = document.createElement('button');
+              button.textContent = episode;
+              button.onclick = () => showResolutionOverlay(episode, selectedItem.downloadOptions[episode]); 
+              downloadButtonsDiv.appendChild(button);
             } else {
-                passwordError.textContent = 'Password salah';
-                adminLinksDiv.style.display = 'none';
+                console.warn(`Opsi download untuk '${episode}' tidak memiliki resolusi bersarang. Abaikan atau sesuaikan.`);
             }
-        };
+          }
+        } else {
+          downloadButtonsDiv.innerHTML = "<p>Tidak ada opsi episode/download tersedia.</p>";
+        }
 
-        // Tutup popup saat klik di luar popup
-        overlay.onclick = (event) => {
-            if (event.target === overlay) {
-                overlay.style.display = 'none';
-                adminPopup.style.display = 'none';
-            }
+        const linkFotoAsliButton = document.getElementById('linkFotoAsliButton');
+        linkFotoAsliButton.onclick = () => window.open(selectedItem.detailLink, "_blank");
+
+      } else {
+        alert("Konten tidak ditemukan. Kembali ke halaman pencarian.");
+        showPencarianPage(); 
+      }
+    }
+
+    // --- Fungsi Overlay Resolusi ---
+    function showResolutionOverlay(episodeName, episodeOptions) {
+      resolutionOptionsDiv.innerHTML = '<h4>Pilih Resolusi untuk ' + episodeName + '</h4>';
+      
+      for (const resolution in episodeOptions) {
+        const button = document.createElement('button');
+        button.textContent = resolution;
+        button.onclick = () => {
+          window.open(episodeOptions[resolution], '_blank');
+          hideResolutionOverlay();
         };
-    </script>
+        resolutionOptionsDiv.appendChild(button);
+      }
+      
+      const closeButton = document.createElement('button');
+      closeButton.textContent = "Tutup";
+      closeButton.className = "close-button";
+      closeButton.onclick = hideResolutionOverlay;
+      resolutionOptionsDiv.appendChild(closeButton);
+
+      resolutionOverlay.style.display = 'flex';
+    }
+
+    function hideResolutionOverlay() {
+      resolutionOverlay.style.display = 'none';
+    }
+
+    // --- Inisialisasi Saat Halaman Dimuat ---
+    document.addEventListener('DOMContentLoaded', () => {
+      const initialHash = window.location.hash.substring(1);
+      const lastViewedItemId = localStorage.getItem('lastViewedItemId');
+
+      if (initialHash) {
+        showDetailPage(initialHash);
+      } else if (lastViewedItemId) {
+        showDetailPage(lastViewedItemId);
+      } else {
+        showPencarianPage(); 
+      }
+    });
+
+    window.addEventListener('hashchange', () => {
+      const newHash = window.location.hash.substring(1);
+      if (newHash) {
+        showDetailPage(newHash);
+      } else {
+        showPencarianPage();
+      }
+    });
+
+  </script>
 </body>
 </html>
