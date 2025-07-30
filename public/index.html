@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YTMP3 - Online Video Converter</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <style>
+      /* --- GLOBAL STYLES --- */
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(to right, #6dd5ed, #2193b0); /* Background gradient tetap ada untuk body */
+        margin: 0;
+        padding: 0; /* Pastikan tidak ada padding/margin di body */
+        min-height: 100vh;
+        color: #333;
+        overflow-x: hidden; /* Mencegah scroll horizontal yang tidak diinginkan */
+        position: relative;
+      }
+
+      /* --- MAIN WRAPPER (Sekarang ini adalah container utama untuk seluruh konten yang terlihat) --- */
+      .main-wrapper {
+        width: 100vw; /* Ambil lebar penuh viewport */
+        min-height: 100vh; /* Ambil tinggi penuh viewport */
+        background-color: #fff; /* Background putih untuk menutupi gradient body */
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Bayangan sedikit agar terlihat 'mengambang' */
+        overflow-x: hidden; /* Mencegah scroll horizontal di dalam main-wrapper */
+        box-sizing: border-box; /* Pastikan padding termasuk dalam width/height */
+        padding: 20px; /* Padding internal untuk konten */
+        margin: 0;
+        max-width: none;
+      }
+
+      /* --- SIDEBAR STYLES (overlaying) --- */
+      .sidebar {
+        position: fixed; /* Membuat sidebar tetap di tempatnya */
+        top: 0;
+        left: 0;
+        width: 250px; /* Lebar sidebar */
+        height: 100%; /* Tinggi penuh */
+        background-color: #fff;
+        padding: 20px;
+        box-sizing: border-box;
+        border-right: 1px solid #eee;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transform: translateX(-100%); /* Sembunyikan di luar layar */
+        transition: transform 0.3s ease; /* Transisi untuk pergerakan */
+        z-index: 1000; /* Pastikan di atas konten lain */
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Saat sidebar terbuka, geser ke dalam tampilan */
+      body.sidebar-open .sidebar {
+        transform: translateX(0);
+      }
+
+      .sidebar h2 {
+        color: #2193b0;
+        font-size: 1.2em;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .sidebar .sidebar-buttons {
+        width: 100%;
+      }
+
+      .sidebar .sidebar-buttons button {
+        width: 100%;
+        padding: 12px 15px;
+        margin-bottom: 10px;
+        background-color: #e0f7fa;
+        color: #2193b0;
+        border: 1px solid #a0d9e9;
+        border-radius: 6px;
+        text-align: left;
+        font-size: 1em;
+        cursor: pointer;
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+
+      .sidebar .sidebar-buttons button:hover {
+        background-color: #2193b0;
+        color: white;
+      }
+
+      /* --- OVERLAY STYLES --- */
+      .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5); /* Semi-transparan */
+        z-index: 999; /* Di bawah sidebar tapi di atas konten utama */
+        opacity: 0; /* Awalnya tersembunyi */
+        visibility: hidden; /* Awalnya tidak interaktif */
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+      }
+
+      body.sidebar-open .overlay {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      /* --- MAIN CONTENT STYLES --- */
+      .header {
+        margin-bottom: 25px;
+        position: relative; /* Untuk posisi tombol hamburger */
+      }
+      .header img {
+        width: 250px; /* Ukuran logo di main content */
+        margin-bottom: 15px;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .header h1 {
+        color: #2193b0;
+        font-size: 1.8em;
+        margin-top: 0;
+        font-weight: bold;
+      }
+
+      /* --- HAMBURGER BUTTON --- */
+      .hamburger-button {
+        position: absolute; /* Posisi absolut di dalam .header */
+        top: 15px;
+        left: 5px; /* <-- **PERUBAHAN:** Geser lebih ke kiri */
+        background: none;
+        border: none;
+        font-size: 1.5em; /* <-- **PERUBAHAN:** Perkecil ukuran */
+        color: #2193b0;
+        cursor: pointer;
+        z-index: 10; /* Z-index lebih rendah dari sidebar, tapi di atas konten */
+        padding: 5px;
+        transition: opacity 0.3s ease, visibility 0.3s ease; /* Transisi untuk visibilitas */
+      }
+
+      /* Sembunyikan tombol saat sidebar terbuka */
+      body.sidebar-open .hamburger-button {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none; /* Mencegah tombol bisa diklik saat tersembunyi */
+      }
+
+      .hamburger-button:hover {
+        color: #1a7b93;
+      }
+
+      p {
+        margin-bottom: 15px;
+      }
+      .input-section {
+        display: flex;
+        justify-content: center; /* Tengah konten flex */
+        margin-bottom: 15px;
+        max-width: 400px; /* Batasi lebar input section */
+        margin-left: auto; /* Tengah input section */
+        margin-right: auto;
+      }
+      .input-section input[type="text"] {
+        flex-grow: 1;
+        padding: 10px;
+        border: 1px solid #a0d9e9;
+        border-radius: 6px 0 0 6px;
+        font-size: 0.95em;
+        outline: none;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+      .input-section button {
+        padding: 10px 20px;
+        background-color: #2193b0;
+        color: white;
+        border: none;
+        border-radius: 0 6px 6px 0;
+        cursor: pointer;
+        font-size: 0.95em;
+        font-weight: bold;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+      }
+      .input-section button:hover {
+        background-color: #1a7b93;
+        transform: translateY(-1px);
+      }
+
+      /* --- TOMBOL MP3/MP4 (Pindah ke bawah input, sejajar kiri) --- */
+      .tabs {
+        display: flex;
+        /* Hapus justify-content: center; */
+        margin-top: 10px; /* Beri sedikit jarak dari input */
+        margin-bottom: 25px;
+        gap: 0px;
+        /* Perlebar sedikit max-width agar tombol bisa sejajar dengan input */
+        max-width: 400px; /* <-- Sama dengan max-width .input-section */
+        margin-left: auto; /* Tetap auto agar container tabs ditengahkan */
+        margin-right: auto;
+      }
+      .tabs button {
+        background-color: #e0f7fa;
+        border: 1px solid #a0d9e9;
+        padding: 6px 15px; /* <-- **PERUBAHAN:** Perkecil padding untuk mengecilkan tombol */
+        cursor: pointer;
+        font-size: 0.85em; /* <-- **PERUBAHAN:** Perkecil ukuran font */
+        border-radius: 0;
+      }
+      .tabs button:first-child {
+        border-top-left-radius: 5px;
+        border-bottom-left-radius: 5px;
+      }
+      .tabs button:last-child {
+        border-top-right-radius: 5px;
+        border-bottom-right-radius: 5px;
+      }
+      .tabs button.active {
+        background-color: #2193b0;
+        color: white;
+        border-color: #2193b0;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+
+      .info-section {
+        text-align: left;
+        color: #555;
+        line-height: 1.7;
+        margin-top: 20px;
+        font-size: 0.9em;
+      }
+      .info-section h2 {
+        color: #2193b0;
+        font-size: 1.2em;
+        margin-bottom: 12px;
+      }
+      .info-section ul {
+        list-style: none;
+        padding-left: 0;
+      }
+      .info-section ul li {
+        margin-bottom: 8px;
+        position: relative;
+        padding-left: 25px;
+      }
+      .info-section ul li::before {
+        content: '✓';
+        color: #2193b0;
+        position: absolute;
+        left: 0;
+        font-weight: bold;
+      }
+      .error-message {
+        color: #d9534f;
+        margin-top: 10px;
+        font-weight: bold;
+      }
+      footer {
+        margin-top: 40px;
+        color: #eee;
+        font-size: 0.85em;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+      a {
+        color: #2193b0;
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="overlay" id="overlay"></div>
+
+    <div class="sidebar" id="sidebar">
+      <h2>Menu</h2>
+      <div class="sidebar-buttons">
+        <button onclick="window.location.href='/';">
+          <i class="fas fa-home"></i> Beranda
+        </button>
+        <button onclick="window.location.href='/ytmp3';">
+          <i class="fas fa-music"></i> Konverter MP3
+        </button>
+        <button onclick="window.location.href='/ytmp4';">
+          <i class="fas fa-video"></i> Konverter MP4
+        </button>
+        <button onclick="window.location.href='example_link_4';">
+          <i class="fas fa-question-circle"></i> FAQ
+        </button>
+        <button onclick="window.location.href='example_link_5';">
+          <i class="fas fa-info-circle"></i> Tentang Kami
+        </button>
+      </div>
+    </div>
+    <div class="main-wrapper" id="mainWrapper">
+      <div class="header">
+        <button class="hamburger-button" id="hamburgerButton">
+          <i class="fas fa-bars"></i>
+        </button>
+        <img
+          src="https://raw.githubusercontent.com/ikyYourStar/ksr-api/refs/heads/main/ksr-image/Tak%20berjudul2_20250730215025.png"
+          alt="ZEDXYT Logo"
+        />
+        <h1>Online Video Converter</h1>
+      </div>
+
+      <p>Harap masukkan URL video YouTube</p>
+
+      <div class="input-section">
+        <input type="text" id="youtubeUrl" placeholder="Masukkan URL YouTube" />
+        <button id="convertButton">Konverter</button>
+      </div>
+
+      <div class="tabs">
+        <button id="mp3Tab" class="active">mp3</button>
+        <button id="mp4Tab">mp4</button>
+      </div>
+
+      <div id="errorMessage" class="error-message"></div>
+
+      <div class="info-section">
+        <h2>Youtube mp3</h2>
+        <p>
+          Video selalu dikonversi dalam kualitas tertinggi yang tersedia. Berbeda
+          dengan situs web lain, Anda dapat mengonversi video yang tidak
+          tersedia atau diblokir di negara Anda. Harap perhatikan bahwa kami
+          hanya dapat mengonversi video hingga durasi 12 jam - batasan tersebut
+          diperlukan, jadi konversi video apa pun tidak akan memakan waktu
+          lebih dari beberapa menit.
+        </p>
+        <p>
+          Layanan kami gratis dan tidak memerlukan perangkat lunak atau
+          pendaftaran apa pun. Dengan menggunakan layanan kami, Anda menerima
+          <a href="#">Ketentuan penggunaan</a> kami.
+        </p>
+        <p>Jadi, untuk memulai:</p>
+        <ul>
+          <li>
+            Buka
+            <a href="youtube.com"
+              >youtube.com</a
+            >.
+          </li>
+          <li>
+            Salin URL video (contoh:
+            <a href="youtube.com/watch?v=KMU0tzLwhbE"
+              >youtube.com/watch?v=KMU0tzLwhbE</a
+            >) dari video yang ingin Anda konversi dan tempel ke konverter kami.
+          </li>
+          <li>
+            Pilih format - mp3 (audio) atau mp4 (video) - dan klik tombol
+            konversi.
+          </li>
+          <li>
+            Segera setelah konversi selesai, Anda dapat mengunduh berkas dengan
+            mengklik tombol unduh.
+          </li>
+        </ul>
+        <p>Selamat menikmati! Kami harap Anda menyukai layanan kami.</p>
+      </div>
+    </div>
+    <footer>© 2025 YTMP3. All rights reserved.</footer>
+
+    <script>
+      const body = document.body;
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("overlay");
+      const hamburgerButton = document.getElementById("hamburgerButton");
+
+      function openSidebar() {
+        body.classList.add("sidebar-open");
+        hamburgerButton.style.opacity = '0';
+        hamburgerButton.style.visibility = 'hidden';
+        hamburgerButton.style.pointerEvents = 'none';
+      }
+
+      function closeSidebar() {
+        body.classList.remove("sidebar-open");
+        hamburgerButton.style.opacity = '1';
+        hamburgerButton.style.visibility = 'visible';
+        hamburgerButton.style.pointerEvents = 'auto';
+      }
+
+      hamburgerButton.addEventListener("click", openSidebar);
+      overlay.addEventListener("click", closeSidebar);
+
+      // --- Konverter Logic (tetap sama) ---
+      const youtubeUrlInput = document.getElementById("youtubeUrl");
+      const convertButton = document.getElementById("convertButton");
+      const mp3Tab = document.getElementById("mp3Tab");
+      const mp4Tab = document.getElementById("mp4Tab");
+      const errorMessage = document.getElementById("errorMessage");
+
+      let currentFormat = "mp3"; // Default format
+
+      mp3Tab.addEventListener("click", () => {
+        mp3Tab.classList.add("active");
+        mp4Tab.classList.remove("active");
+        currentFormat = "mp3";
+      });
+
+      mp4Tab.addEventListener("click", () => {
+        mp4Tab.classList.add("active");
+        mp3Tab.classList.remove("active");
+        currentFormat = "mp4";
+      });
+
+      convertButton.addEventListener("click", () => {
+        const url = youtubeUrlInput.value.trim();
+        if (!url) {
+          errorMessage.textContent = "❌ Masukkan URL YouTube!";
+          return;
+        }
+
+        errorMessage.textContent = ""; // Clear previous errors
+
+        let downloadUrl = "";
+        if (currentFormat === "mp3") {
+          downloadUrl = `/ytmp3?url=${encodeURIComponent(url)}`;
+        } else {
+          downloadUrl = `/ytmp4?url=${encodeURIComponent(url)}`;
+        }
+
+        window.location.href = downloadUrl;
+      });
+    </script>
+  </body>
+</html>
