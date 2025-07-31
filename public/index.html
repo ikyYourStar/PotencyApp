@@ -12,49 +12,68 @@
       /* --- GLOBAL STYLES --- */
       body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(to right, #6dd5ed, #2193b0); /* Background gradient tetap ada untuk body */
+        background: linear-gradient(to right, #6dd5ed, #2193b0);
         margin: 0;
-        padding: 0; /* Pastikan tidak ada padding/margin di body */
+        padding: 0;
         min-height: 100vh;
         color: #333;
-        overflow-x: hidden; /* Mencegah scroll horizontal yang tidak diinginkan */
+        overflow-x: hidden;
         position: relative;
+        box-sizing: border-box;
       }
 
-      /* --- MAIN WRAPPER (Sekarang ini adalah container utama untuk seluruh konten yang terlihat) --- */
+      /* --- MAIN WRAPPER --- */
       .main-wrapper {
-        width: 100vw; /* Ambil lebar penuh viewport */
-        min-height: 100vh; /* Ambil tinggi penuh viewport */
-        background-color: #fff; /* Background putih untuk menutupi gradient body */
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Bayangan sedikit agar terlihat 'mengambang' */
-        overflow-x: hidden; /* Mencegah scroll horizontal di dalam main-wrapper */
-        box-sizing: border-box; /* Pastikan padding termasuk dalam width/height */
-        padding: 20px; /* Padding internal untuk konten */
-        margin: 0;
-        max-width: none;
+        width: 100%;
+        min-height: 100vh;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        overflow-x: hidden;
+        box-sizing: border-box;
+        padding: 20px;
+        margin: 0 auto;
+        border-radius: 0;
+        position: relative; /* Penting untuk posisi tombol hamburger */
       }
 
-      /* --- SIDEBAR STYLES (overlaying) --- */
+      /* Desktop specific styling for main-wrapper to make it centered and rounded */
+      @media (min-width: 768px) {
+        .main-wrapper {
+          max-width: 500px;
+          min-height: auto;
+          border-radius: 12px;
+          padding: 30px;
+          margin-top: 50px;
+          margin-bottom: 50px;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+      }
+
+      /* --- SIDEBAR STYLES (NEW POSITION: RIGHT) --- */
       .sidebar {
-        position: fixed; /* Membuat sidebar tetap di tempatnya */
+        position: fixed;
         top: 0;
-        left: 0;
-        width: 250px; /* Lebar sidebar */
-        height: 100%; /* Tinggi penuh */
+        right: 0; /* Ubah dari 'left' ke 'right' */
+        width: 250px;
+        height: 100%;
         background-color: #fff;
         padding: 20px;
         box-sizing: border-box;
-        border-right: 1px solid #eee;
+        border-left: 1px solid #eee; /* Ubah dari 'border-right' ke 'border-left' */
         display: flex;
         flex-direction: column;
         align-items: center;
-        transform: translateX(-100%); /* Sembunyikan di luar layar */
-        transition: transform 0.3s ease; /* Transisi untuk pergerakan */
-        z-index: 1000; /* Pastikan di atas konten lain */
+        transform: translateX(100%); /* Sembunyikan ke kanan */
+        transition: transform 0.3s ease;
+        z-index: 1000;
         box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
       }
 
-      /* Saat sidebar terbuka, geser ke dalam tampilan */
+      /* Saat sidebar terbuka, geser ke dalam tampilan dari kanan */
       body.sidebar-open .sidebar {
         transform: translateX(0);
       }
@@ -96,10 +115,10 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.5); /* Semi-transparan */
-        z-index: 999; /* Di bawah sidebar tapi di atas konten utama */
-        opacity: 0; /* Awalnya tersembunyi */
-        visibility: hidden; /* Awalnya tidak interaktif */
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        opacity: 0;
+        visibility: hidden;
         transition: opacity 0.3s ease, visibility 0.3s ease;
       }
 
@@ -111,10 +130,10 @@
       /* --- MAIN CONTENT STYLES --- */
       .header {
         margin-bottom: 25px;
-        position: relative; /* Untuk posisi tombol hamburger */
+        /* Position relative sudah di .main-wrapper, jadi tidak perlu lagi di sini */
       }
       .header img {
-        width: 250px; /* Ukuran logo di main content */
+        width: 250px;
         margin-bottom: 15px;
         display: block;
         margin-left: auto;
@@ -127,26 +146,25 @@
         font-weight: bold;
       }
 
-      /* --- HAMBURGER BUTTON --- */
+      /* --- HAMBURGER BUTTON (NEW POSITION: RIGHT) --- */
       .hamburger-button {
-        position: absolute; /* Posisi absolut di dalam .header */
+        position: absolute;
         top: 15px;
-        left: 5px; /* <-- **PERUBAHAN:** Geser lebih ke kiri */
+        right: 15px; /* Ubah dari 'left' ke 'right' */
         background: none;
         border: none;
-        font-size: 1.5em; /* <-- **PERUBAHAN:** Perkecil ukuran */
+        font-size: 1.5em;
         color: #2193b0;
         cursor: pointer;
-        z-index: 10; /* Z-index lebih rendah dari sidebar, tapi di atas konten */
+        z-index: 10;
         padding: 5px;
-        transition: opacity 0.3s ease, visibility 0.3s ease; /* Transisi untuk visibilitas */
+        transition: opacity 0.3s ease, visibility 0.3s ease;
       }
 
-      /* Sembunyikan tombol saat sidebar terbuka */
       body.sidebar-open .hamburger-button {
         opacity: 0;
         visibility: hidden;
-        pointer-events: none; /* Mencegah tombol bisa diklik saat tersembunyi */
+        pointer-events: none;
       }
 
       .hamburger-button:hover {
@@ -158,10 +176,10 @@
       }
       .input-section {
         display: flex;
-        justify-content: center; /* Tengah konten flex */
+        justify-content: center;
         margin-bottom: 15px;
-        max-width: 400px; /* Batasi lebar input section */
-        margin-left: auto; /* Tengah input section */
+        max-width: 400px;
+        margin-left: auto;
         margin-right: auto;
       }
       .input-section input[type="text"] {
@@ -189,24 +207,23 @@
         transform: translateY(-1px);
       }
 
-      /* --- TOMBOL MP3/MP4 (Pindah ke bawah input, sejajar kiri) --- */
+      /* --- TOMBOL MP3/MP4 --- */
       .tabs {
         display: flex;
-        /* Hapus justify-content: center; */
-        margin-top: 10px; /* Beri sedikit jarak dari input */
+        justify-content: center; /* Kembali ke tengah agar sesuai dengan input */
+        margin-top: 10px;
         margin-bottom: 25px;
         gap: 0px;
-        /* Perlebar sedikit max-width agar tombol bisa sejajar dengan input */
-        max-width: 400px; /* <-- Sama dengan max-width .input-section */
-        margin-left: auto; /* Tetap auto agar container tabs ditengahkan */
+        max-width: 400px;
+        margin-left: auto;
         margin-right: auto;
       }
       .tabs button {
         background-color: #e0f7fa;
         border: 1px solid #a0d9e9;
-        padding: 6px 15px; /* <-- **PERUBAHAN:** Perkecil padding untuk mengecilkan tombol */
+        padding: 6px 15px;
         cursor: pointer;
-        font-size: 0.85em; /* <-- **PERUBAHAN:** Perkecil ukuran font */
+        font-size: 0.85em;
         border-radius: 0;
       }
       .tabs button:first-child {
@@ -259,9 +276,8 @@
       }
       footer {
         margin-top: 40px;
-        color: #eee;
+        color: #777;
         font-size: 0.85em;
-        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
         text-align: center;
       }
       a {
@@ -279,20 +295,20 @@
     <div class="sidebar" id="sidebar">
       <h2>Menu</h2>
       <div class="sidebar-buttons">
-        <button onclick="window.location.href='/';">
-          <i class="fas fa-home"></i> Beranda
+        <button onclick="window.location.href='example.com/link1';">
+          <i class="fas fa-link"></i> Example 1
         </button>
-        <button onclick="window.location.href='/ytmp3';">
-          <i class="fas fa-music"></i> Konverter MP3
+        <button onclick="window.location.href='example.com/link2';">
+          <i class="fas fa-link"></i> Example 2
         </button>
-        <button onclick="window.location.href='/ytmp4';">
-          <i class="fas fa-video"></i> Konverter MP4
+        <button onclick="window.location.href='example.com/link3';">
+          <i class="fas fa-link"></i> Example 3
         </button>
-        <button onclick="window.location.href='example_link_4';">
-          <i class="fas fa-question-circle"></i> FAQ
+        <button onclick="window.location.href='example.com/link4';">
+          <i class="fas fa-link"></i> Example 4
         </button>
-        <button onclick="window.location.href='example_link_5';">
-          <i class="fas fa-info-circle"></i> Tentang Kami
+        <button onclick="window.location.href='example.com/link5';">
+          <i class="fas fa-link"></i> Example 5
         </button>
       </div>
     </div>
